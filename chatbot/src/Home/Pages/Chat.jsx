@@ -5,36 +5,61 @@ import { Box, Paper, AppBar, Toolbar, Typography, TextField, FormControl, Input,
 
 import SendIcon from '@mui/icons-material/Send';
 import { MessagesList } from '../Components/MessagesList';
+import { useBot } from '../Hooks/useBot';
 
 export const Chat = () => {
 
-    const [messages, setMessages] = useState([
-        {
-            user: 'User',
-            text: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Dicta obcaecati natus officia quam expedita ratione soluta sunt vitae eum. Debitis adipisci consequatur magnam maiores eveniet amet enim nam pariatur sunt?'
-        },
-        {
-            user: 'IA',
-            text: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Dicta obcaecati natus officia quam expedita ratione soluta sunt vitae eum. Debitis adipisci consequatur magnam maiores eveniet amet enim nam pariatur sunt?'
-        }
-    ])
 
+    const [respuesta, setrespuesta] = useState('')
 
+    const [past_user_inputs, setPast_user_inputs] = useState([])
+    const [generated_responses, setGenerated_responses] = useState([])
     const [messageText, setMessageText] = useState('')
 
-    const send = (e) => {
+    const [messages, setMessages] = useState([
+
+    ])
+
+    const send = async (e) => {
 
         e.preventDefault()
+        const { botSend } = useBot()
+        console.log('==========================')
+        console.log(past_user_inputs)
+        console.log(generated_responses)
+        console.log('==========================')
+
+        const { generated_text } = await botSend(past_user_inputs, generated_responses, messageText)
+
         let messagesAux = messages;
         messagesAux.push({
             text: messageText,
             user: 'user'
         })
+
+        messagesAux.push({
+            text: generated_text,
+            user: 'IA'
+        })
+
         setMessages(
             messagesAux
         )
 
+        let arrayAux = past_user_inputs
+        arrayAux.push(messageText)
+        setPast_user_inputs(arrayAux)
+
+        arrayAux = generated_responses
+        arrayAux.push(generated_text)
+        setGenerated_responses(arrayAux)
+
+        console.log(past_user_inputs)
+        console.log(generated_responses)
+
         setMessageText('')
+
+
 
     }
 
@@ -49,7 +74,7 @@ export const Chat = () => {
                 </Toolbar>
             </AppBar>
 
-            <Box height={'80%'} sx={{overflowY: 'scroll'}}>
+            <Box height={'80%'} sx={{ overflowY: 'scroll' }}>
                 <MessagesList messages={messages} />
             </Box>
 
